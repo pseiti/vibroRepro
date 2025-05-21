@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 
 class helprs:
 
-	def jitterFx(self, cur_amp):
+	def jitterFx(iself, cur_amp):
 		minmax = cur_amp*jitter
 		jitter_x = np.random.uniform(low=-minmax,high=minmax,size=None)
 		amp_jittered = round((cur_amp+jitter_x),2)

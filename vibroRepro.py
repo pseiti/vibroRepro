@@ -4,7 +4,7 @@ import pandas as pd
 from tkinter import *
 from tkinter import messagebox
 from tkinter import ttk
-from PILd import ImageTk, Image
+from PIL import ImageTk, Image
 import random
 import numpy as np
 import time
@@ -654,9 +654,9 @@ ts_init = time.time()
 # neutralFace = ImageTk.PhotoImage(Image.open("neutral.png"))
 # sadFace = ImageTk.PhotoImage(Image.open("sad.png"))
 
-# pcodefile = open("p_code.txt","r")
-# pcode = pcodefile.read()
-# pcodefile.close()
+pcodefile = open("p_code.txt","r")
+pcode = pcodefile.read()
+pcodefile.close()
 
 # columnNames = ['pcode','practice','trial','block','questionType',
 # 'condition','question','PTS','TargetPosition','AccessoryPosition','TNS',

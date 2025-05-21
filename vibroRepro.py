@@ -4,7 +4,7 @@ import pandas as pd
 from tkinter import *
 from tkinter import messagebox
 from tkinter import ttk
-from PIL import ImageTk, Image
+from PILd import ImageTk, Image
 import random
 import numpy as np
 import time

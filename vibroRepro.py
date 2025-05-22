@@ -13,6 +13,38 @@ import matplotlib.pyplot as plt
 
 class helprs:
 
+	def playVib(vol,dur,Hz):
+
+	    p = pyaudio.PyAudio()
+	 
+	    volume = vol  # range [0.0, 1.0]
+	    fs = 44100  # sampling rate, Hz, must be integer
+	    duration = dur  # in seconds, may be float
+	    f = Hz  # sine frequency, Hz, may be float
+
+	    # generate samples, note conversion to float32 array
+	    samples = (np.sin(2 * np.pi * np.arange(fs * duration) * f / fs)).astype(np.float32)
+	    # print(len(samples))
+
+	    # per @yahweh comment explicitly convert to bytes sequence
+	    output_bytes = (volume * samples).tobytes()
+
+	    # for paFloat32 sample values must be in range [-1.0, 1.0]
+	    stream = p.open(format=pyaudio.paFloat32,
+	                    channels=1,
+	                    rate=fs,
+	                    output=True)
+
+	    # play. May repeat with different volume values (if done interactively)
+	    start_time = time.time()
+	    stream.write(output_bytes)
+	    # print("Played sound for {:.2f} seconds".format(time.time() - start_time))
+
+	    stream.stop_stream()
+	    stream.close()
+
+	    p.terminate()
+
 	def jitterFx(self, cur_amp):
 		minmax = cur_amp*jitter
 		jitter_x = np.random.uniform(low=-minmax,high=minmax,size=None)
@@ -58,15 +90,15 @@ class helprs:
 			x.pack()
 			x.place()
 
-	def tone_fx(self, vibHz, stereo, audioHz):
-		if stereo:
-			stereoData = np.column_stack([vibHz, audioHz])
-			sd.play(stereoData,44100)
-		else:
-			audioHz = np.zeros(len(vibHz))
-			stereoData = np.column_stack([vibHz, audioHz])
-			sd.play(stereoData, 44100)
-		sd.wait()
+	# def tone_fx(self, vibHz, stereo, audioHz):
+	# 	if stereo:
+	# 		stereoData = np.column_stack([vibHz, audioHz])
+	# 		sd.play(stereoData,44100)
+	# 	else:
+	# 		audioHz = np.zeros(len(vibHz))
+	# 		stereoData = np.column_stack([vibHz, audioHz])
+	# 		sd.play(stereoData, 44100)
+	# 	sd.wait()
 
 	def toggle_locked(self):
 		LoG = globals()
@@ -158,7 +190,6 @@ class trialFunctions:
 							LoG["list_trial_dicts"] = list_trial_dicts_test_uneq
 						else:
 							LoG["list_trial_dicts"] = list_trial_dicts_test_eq
-					print(len(LoG["list_trial_dicts"]))
 					self.H.forget([Text1,Text2])
 					self.trial_fx(firstCall=False)
 				else:
@@ -212,18 +243,18 @@ class trialFunctions:
 			self.thxPage()
 			self.trial_fx(firstCall=True)
 		else:
-			F1 = wf.soundGene2(44100,1,cur_trial_dict.get("T1_hz"),cur_trial_dict.get("T1_amp"))
-			F2 = wf.soundGene2(44100,1,cur_trial_dict.get("T2_hz"),cur_trial_dict.get("T2_amp"))
-			F3 = wf.soundGene2(44100,1,cur_trial_dict.get("P_hz"),cur_trial_dict.get("P_amp"))
-			F_accessory = wf.soundGene2(44100,.05,3000,cur_trial_dict.get("P_amp")) # https://www.sfu.ca/sonic-studio-webdav/handbook/Click.html
-			F_zero = wf.soundGene2(44100,1,0,0)
-			len_accessory = len(F_accessory)
-			len_tactile = len(F1)
-			stp = np.divide(len_tactile,2)-np.divide(len_accessory,2)
-			zerosH1 = np.zeros(int(stp))
-			F_accessory = np.append(zerosH1, F_accessory)
-			zerosH2 = np.zeros(len(F1) - len(F_accessory))
-			F_accessory = np.append(F_accessory, zerosH2)
+			# F1 = wf.soundGene2(44100,1,cur_trial_dict.get("T1_hz"),cur_trial_dict.get("T1_amp"))
+			# F2 = wf.soundGene2(44100,1,cur_trial_dict.get("T2_hz"),cur_trial_dict.get("T2_amp"))
+			# F3 = wf.soundGene2(44100,1,cur_trial_dict.get("P_hz"),cur_trial_dict.get("P_amp"))
+			# F_accessory = wf.soundGene2(44100,.05,3000,cur_trial_dict.get("P_amp")) # https://www.sfu.ca/sonic-studio-webdav/handbook/Click.html
+			# F_zero = wf.soundGene2(44100,1,0,0)
+			# len_accessory = len(F_accessory)
+			# len_tactile = len(F1)
+			# stp = np.divide(len_tactile,2)-np.divide(len_accessory,2)
+			# zerosH1 = np.zeros(int(stp))
+			# F_accessory = np.append(zerosH1, F_accessory)
+			# zerosH2 = np.zeros(len(F1) - len(F_accessory))
+			# F_accessory = np.append(F_accessory, zerosH2)
 			# plt.plot(F1)
 			# plt.plot(F_accessory)
 			# plt.axvline(stp+np.divide(len_accessory,2))
@@ -249,21 +280,21 @@ class trialFunctions:
 
 
 ((( T1 )))""", False, None)
-			frame.after(600, self.H.tone_fx, F1, Accessory_OnOrOff[0], F_accessory)
+			frame.after(600, self.H.playVib, cur_trial_dict.get("T1_amp"), 1, cur_trial_dict.get("T1_hz"))
 			frame.after(1600, self.H.forget, [StimInfo])
 			frame.after(2600, self.H.text_fx, StimInfo, """
 
 
 
 ((( T2 )))""", False, None)
-			frame.after(2700, self.H.tone_fx, F2, Accessory_OnOrOff[1], F_accessory)
+			frame.after(2700, self.H.playVib, cur_trial_dict.get("T2_amp"), 1, cur_trial_dict.get("T2_hz"))
 			frame.after(3700, self.H.forget, [StimInfo])
 			frame.after(4700, self.H.text_fx, StimInfo, """
 
 
 
 ((( P )))""", False, None)
-			frame.after(4800, self.H.tone_fx, F3, Accessory_OnOrOff[2], F_accessory)		
+			frame.after(4800, self.H.playVib, cur_trial_dict.get("P_amp"), 1, cur_trial_dict.get("P_hz"))		
 			frame.after(5800, self.H.forget, [StimInfo])
 			frame.after(5800, self.H.text_fx, StimInfo, cur_prompt, False, None)
 			frame.after(5800, self.H.toggle_locked) # var locked toggled to False
@@ -612,67 +643,67 @@ trial = 0
 jitter = 0.15
 accu_thres = 0.5 
 ts_init = time.time()
-# duration_break = 1*60*15 # minutes
-# NTrialsTillFeedback = 2
+duration_break = 1*60*15 # minutes
+NTrialsTillFeedback = 2
 
-# H = helprs()
-# TF = trialFunctions()
+H = helprs()
+TF = trialFunctions()
 
-# while True:
-# 	print()
-# 	AB_or_BA = input("Which sequence (AB vs. BA)? ")
-# 	print()
-# 	block = input("Which block (1 vs. 2)? ")
-# 	print()
-# 	if AB_or_BA=="AB":
-# 		if block=="1":
-# 			questionType="equal"
-# 			break
-# 		elif block=="2":
-# 			questionType="unequal"
-# 			break
-# 	elif AB_or_BA=="BA":
-# 		if block=="1":
-# 			questionType="unequal"
-# 			break
-# 		elif block=="2":
-# 			questionType="equal"
-# 			break
+while True:
+	print()
+	AB_or_BA = input("Which sequence (AB vs. BA)? ")
+	print()
+	block = input("Which block (1 vs. 2)? ")
+	print()
+	if AB_or_BA=="AB":
+		if block=="1":
+			questionType="equal"
+			break
+		elif block=="2":
+			questionType="unequal"
+			break
+	elif AB_or_BA=="BA":
+		if block=="1":
+			questionType="unequal"
+			break
+		elif block=="2":
+			questionType="equal"
+			break
 
 
-# win = Tk()
-# win.attributes("-fullscreen")
-# win.title("DMS")
-# win.geometry("750x500+000+000")
-# close_btn = Button(win, text = "Close", command = win.destroy)
-# close_btn.pack(side=BOTTOM, pady=25)
-# frame = Frame(win)
-# frame.pack(padx=20, pady=20)
-# rating_label = Label(frame, font=("Arial bold", 25)) 
+win = Tk()
+win.attributes("-fullscreen")
+win.title("DMS")
+win.geometry("750x500+000+000")
+close_btn = Button(win, text = "Close", command = win.destroy)
+close_btn.pack(side=BOTTOM, pady=25)
+frame = Frame(win)
+frame.pack(padx=20, pady=20)
+rating_label = Label(frame, font=("Arial bold", 25)) 
 
-# happyFace = ImageTk.PhotoImage(Image.open("happy.png"))
-# neutralFace = ImageTk.PhotoImage(Image.open("neutral.png"))
-# sadFace = ImageTk.PhotoImage(Image.open("sad.png"))
+happyFace = ImageTk.PhotoImage(Image.open("happy.png"))
+neutralFace = ImageTk.PhotoImage(Image.open("neutral.png"))
+sadFace = ImageTk.PhotoImage(Image.open("sad.png"))
 
 pcodefile = open("p_code.txt","r")
 pcode = pcodefile.read()
 pcodefile.close()
 
-# columnNames = ['pcode','practice','trial','block','questionType',
-# 'condition','question','PTS','TargetPosition','AccessoryPosition','TNS',
-# 'T1_hz','T1_amp','T2_hz','T2_amp','P_hz','P_amp',
-# 'response_dicho','response_rating','response_sdt','rt','P_correct']
+columnNames = ['pcode','practice','trial','block','questionType',
+'condition','question','PTS','TargetPosition','AccessoryPosition','TNS',
+'T1_hz','T1_amp','T2_hz','T2_amp','P_hz','P_amp',
+'response_dicho','response_rating','response_sdt','rt','P_correct']
 
-# logfile_path = os.getcwd() + "/"
-# logfile_name = "{}dms_{}_{}.csv".format(logfile_path, pcode, block)
-# # nTest = len(conditions_test)
-# list_trial_dicts_practice_eq = H.stimfx(practice=True, questionType="eq")
-# list_trial_dicts_test_eq = H.stimfx(practice=False, questionType="eq")
-# list_trial_dicts_practice_uneq = H.stimfx(practice=True, questionType="uneq")
-# list_trial_dicts_test_uneq = H.stimfx(practice=False, questionType="uneq")
-# print(len(list_trial_dicts_test_eq), len(list_trial_dicts_test_uneq), 
-# 	len(list_trial_dicts_practice_eq), len(list_trial_dicts_practice_uneq))
+logfile_path = os.getcwd() + "/"
+logfile_name = "{}dms_{}_{}.csv".format(logfile_path, pcode, block)
+# nTest = len(conditions_test)
+list_trial_dicts_practice_eq = H.stimfx(practice=True, questionType="eq")
+list_trial_dicts_test_eq = H.stimfx(practice=False, questionType="eq")
+list_trial_dicts_practice_uneq = H.stimfx(practice=True, questionType="uneq")
+list_trial_dicts_test_uneq = H.stimfx(practice=False, questionType="uneq")
+print(len(list_trial_dicts_test_eq), len(list_trial_dicts_test_uneq), 
+	len(list_trial_dicts_practice_eq), len(list_trial_dicts_practice_uneq))
 
-# TF.trial_fx(firstCall=True)
+TF.trial_fx(firstCall=True)
 
-# win.mainloop()
+win.mainloop()

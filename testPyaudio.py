@@ -4,11 +4,7 @@ import numpy as np
 import pyaudio
 
 p = pyaudio.PyAudio()
-
-st = time.time()
-while (time.time()-st) < 3:
-	print(time.time()-st)
-
+ 
 volume = 0.5  # range [0.0, 1.0]
 fs = 44100  # sampling rate, Hz, must be integer
 duration = 1.0  # in seconds, may be float

@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 
 class helprs:
 
-	def playVib(vol,dur,Hz):
+	def playVib(self,vol,dur,Hz):
 
 	    p = pyaudio.PyAudio()
 	 
@@ -431,11 +431,11 @@ class trialFunctions:
 							FaceLabel["bg"] = "red"
 						else:
 							if corrected_percentCorrect < .6:
-								mssg = "Your performance level is okay. Accuray is " + pc_asString + "%."
+								mssg = "Your performance level is okay. Accuracy is " + pc_asString + "%."
 								face_image = neutralFace
 								FaceLabel["bg"] = "orange"
 							else:
-								mssg = "Keep up the good work. Accuray is " + pc_asString + "%."
+								mssg = "Keep up the good work. Accuracy is " + pc_asString + "%."
 								face_image = happyFace
 								FaceLabel["bg"] = "green"
 					FaceLabel["image"] = face_image

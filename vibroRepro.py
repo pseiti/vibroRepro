@@ -106,11 +106,11 @@ class helprs:
 		locked=True if locked==False else False
 		LoG["locked"] = locked
 
-	def getTime_0(self):
+	def get_t0(self):
 		global ts_0
 		ts_0 = time.time()
 
-	def getTime_1(self):
+	def get_rt(self):
 		global rt
 		LoG = globals()
 		ts_1 = time.time()
@@ -158,16 +158,7 @@ class trialFunctions:
 				LoG["intro_locked"] = True
 				LoG["intro"] = False
 				LoG["practice"] = True
-				if AB_or_BA=="AB": 
-					if block=="1":
-						LoG["list_trial_dicts"] = list_trial_dicts_practice_eq
-					else:
-						LoG["list_trial_dicts"] = list_trial_dicts_practice_uneq
-				else:
-					if block=="1":
-						LoG["list_trial_dicts"] = list_trial_dicts_practice_uneq
-					else:
-						LoG["list_trial_dicts"] = list_trial_dicts_practice_eq
+				LoG["list_trial_dicts"] = list_trial_dicts_practice_eq
 				StimInfo = Label(frame, font=("Arial",25))
 				FaceLabel = Label(frame, pady=50, borderwidth=50)
 				FaceTxt = Label(frame, font=("Arial",18))
@@ -180,16 +171,7 @@ class trialFunctions:
 					LoG["intro_locked"] = True
 					LoG["intro"] = False
 					LoG["practice"] = False
-					if AB_or_BA=="AB":
-						if block=="1":
-							LoG["list_trial_dicts"] = list_trial_dicts_test_eq
-						else:
-							LoG["list_trial_dicts"] = list_trial_dicts_test_uneq
-					else:
-						if block=="1":
-							LoG["list_trial_dicts"] = list_trial_dicts_test_uneq
-						else:
-							LoG["list_trial_dicts"] = list_trial_dicts_test_eq
+					LoG["list_trial_dicts"] = list_trial_dicts_practice_eq
 					self.H.forget([Text1,Text2])
 					self.trial_fx(firstCall=False)
 				else:
@@ -235,7 +217,7 @@ class trialFunctions:
 		
 		LoG = globals()
 		LoG["locked"] = True # to lock functions 'compute_key_pressed()' and 'present_compute_rating()'
-		# nToQuit = 5 if LoG["practice"]==True else 10
+		
 		nToQuit = len(list_trial_dicts)
 		print(LoG["trial"])
 		if LoG["trial"]==nToQuit:
@@ -243,31 +225,6 @@ class trialFunctions:
 			self.thxPage()
 			self.trial_fx(firstCall=True)
 		else:
-			# F1 = wf.soundGene2(44100,1,cur_trial_dict.get("T1_hz"),cur_trial_dict.get("T1_amp"))
-			# F2 = wf.soundGene2(44100,1,cur_trial_dict.get("T2_hz"),cur_trial_dict.get("T2_amp"))
-			# F3 = wf.soundGene2(44100,1,cur_trial_dict.get("P_hz"),cur_trial_dict.get("P_amp"))
-			# F_accessory = wf.soundGene2(44100,.05,3000,cur_trial_dict.get("P_amp")) # https://www.sfu.ca/sonic-studio-webdav/handbook/Click.html
-			# F_zero = wf.soundGene2(44100,1,0,0)
-			# len_accessory = len(F_accessory)
-			# len_tactile = len(F1)
-			# stp = np.divide(len_tactile,2)-np.divide(len_accessory,2)
-			# zerosH1 = np.zeros(int(stp))
-			# F_accessory = np.append(zerosH1, F_accessory)
-			# zerosH2 = np.zeros(len(F1) - len(F_accessory))
-			# F_accessory = np.append(F_accessory, zerosH2)
-			# plt.plot(F1)
-			# plt.plot(F_accessory)
-			# plt.axvline(stp+np.divide(len_accessory,2))
-			# plt.show()
-			curAccessoryPosition = cur_trial_dict.get("AccessoryPosition")
-
-			Accessory_OnOrOff = [False, False, False]
-			if curAccessoryPosition==1:
-				Accessory_OnOrOff[0] = True
-			else:
-				Accessory_OnOrOff[1] = True
-
-			# nPracOrTest = nTest if LoG["practice"]==False else nPractice
 			cur_question = cur_trial_dict.get("question")
 			cur_prompt = """
 
@@ -298,7 +255,7 @@ class trialFunctions:
 			frame.after(5800, self.H.forget, [StimInfo])
 			frame.after(5800, self.H.text_fx, StimInfo, cur_prompt, False, None)
 			frame.after(5800, self.H.toggle_locked) # var locked toggled to False
-			frame.after(5800, self.H.getTime_0)
+			frame.after(5800, self.H.get_t0)
 			frame.after(5800, self.get_keypress)
 
 	def get_keypress(self):
@@ -313,7 +270,7 @@ class trialFunctions:
 		 	response = event.char
 		 	
 		 	if response=="f" or response=="j":
-		 		LoG["rt"] = self.H.getTime_1()
+		 		LoG["rt"] = self.H.get_rt()
 		 		LoG["trial"] += 1
 		 		if LoG["practice"]==False:
 		 			LoG["trials_to_feedback"] -= 1
@@ -355,19 +312,18 @@ class trialFunctions:
 		 				else:
 		 					resp_sdt = "hit" if response_v=="Yes" else "miss" 
 
-# columnNames = ['pcode','practice','#trial','#block','questionType'
-# 'condition','question','PTS','TargetPosition','AccessoryPosition','TNS',
+# columnNames = ['pcode','practice','#trial',
+# 'condition','question','PTS','TargetPosition','TNS',
 # 'T1_hz','T1_amp','T2_hz','T2_amp','P_hz','P_amp',
 # 'response_dicho','response_rating','response_sdt','rt','P_correct']
 
 	 			data = LoG['data']
 
-	 			data.loc[len(data)] = [pcode, LoG['practice'], LoG["trial"], LoG["block"], LoG["questionType"],
+	 			data.loc[len(data)] = [pcode, LoG['practice'], LoG["trial"],
 	 				cur_trial_dict.get("condition"),
 	 				cur_trial_dict.get("question"),
 	 				cur_trial_dict.get("PTS"),
 	 				cur_trial_dict.get("TargetPosition"),
-	 				cur_trial_dict.get("AccessoryPosition"),
 	 				cur_trial_dict.get("TNS"),
 	 				cur_trial_dict.get("T1_hz"),
 	 				cur_trial_dict.get("T1_amp"),
@@ -618,21 +574,6 @@ and starting the practice session.
 
 """
 
-instruction_blockChange = """
-In the next block the type of question changes.
-You first get 16 practice trials to get familiar with the type of question.
-You can have a break before you continue.
-
-When you are ready press the space bar to start.
-"""
-
-instruction_startTest = """
-You finished the practice part. In the following test session,
-the type of question remains the same.
-
-To continue, press the space bar. 
-"""
-
 
 intro_locked = False
 test_locked = True
@@ -648,28 +589,6 @@ NTrialsTillFeedback = 2
 
 H = helprs()
 TF = trialFunctions()
-
-while True:
-	print()
-	AB_or_BA = input("Which sequence (AB vs. BA)? ")
-	print()
-	block = input("Which block (1 vs. 2)? ")
-	print()
-	if AB_or_BA=="AB":
-		if block=="1":
-			questionType="equal"
-			break
-		elif block=="2":
-			questionType="unequal"
-			break
-	elif AB_or_BA=="BA":
-		if block=="1":
-			questionType="unequal"
-			break
-		elif block=="2":
-			questionType="equal"
-			break
-
 
 win = Tk()
 win.attributes("-fullscreen")
@@ -689,13 +608,13 @@ pcodefile = open("p_code.txt","r")
 pcode = pcodefile.read()
 pcodefile.close()
 
-columnNames = ['pcode','practice','trial','block','questionType',
-'condition','question','PTS','TargetPosition','AccessoryPosition','TNS',
+columnNames = ['pcode','practice','trial',
+'condition','question','PTS','TargetPosition','TNS',
 'T1_hz','T1_amp','T2_hz','T2_amp','P_hz','P_amp',
 'response_dicho','response_rating','response_sdt','rt','P_correct']
 
 logfile_path = os.getcwd() + "/"
-logfile_name = "{}dms_{}_{}.csv".format(logfile_path, pcode, block)
+logfile_name = "{}dms_{}.csv".format(logfile_path, pcode)
 # nTest = len(conditions_test)
 list_trial_dicts_practice_eq = H.stimfx(practice=True, questionType="eq")
 list_trial_dicts_test_eq = H.stimfx(practice=False, questionType="eq")

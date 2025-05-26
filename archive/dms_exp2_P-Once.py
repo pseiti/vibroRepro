@@ -82,16 +82,15 @@ rating_keys = ["1","2","3","4","5","6"]
 def get_keypress_rating():
 	display.bind("<Key>",compute_rating)
 def compute_rating(event):
-	#LoG = globals()
-	#locked = LoG["locked"]
 	included = False
 	response = event.char
+	print(response)
 	for x in rating_keys:
 		if response==x:
 			included = True
 			break
 	if included==True:
-		menu.destroy()
+		trial_fx(False)
 
 def submit_response():
 	global btns_active
@@ -106,6 +105,7 @@ def submit_response():
 def change_hz(val):
 	global cur_hz
 	cur_hz = slider.get()
+	tone_fx(cur_hz)
 	print(cur_hz)
 
 def tone_fx(cur_hz):
@@ -169,6 +169,7 @@ print(crit_target)
 
 menu = tk.Tk()
 menu.title("Menu")
+menu.geometry('200x300+800+355')
 menu_frame = tk.Frame(menu, height=300, width=200)
 menu_frame.pack()
 

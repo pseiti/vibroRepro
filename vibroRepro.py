@@ -1,5 +1,5 @@
 import pyaudio
-import conditions as cx
+import conditions_exp2 as cx
 import pandas as pd
 from tkinter import *
 from tkinter import messagebox
@@ -12,6 +12,9 @@ import os
 import matplotlib.pyplot as plt
 
 class helprs:
+
+	def quadFx(Hz,a=0.000082585,b=-0.027730656,c=3.144860541):
+		return(a*Hz**2 + b*Hz + c)
 
 	def playVib(self,vol,dur,Hz):
 
@@ -53,19 +56,11 @@ class helprs:
 
 	def stimfx(self, practice, questionType):
 	        if practice == True:
-	        	if questionType == "eq":
-	        		stim_dict = cx.conditions_eq_pract
-	        		random.shuffle(stim_dict)
-	        	else:
-	        		stim_dict = cx.conditions_uneq_pract
-	        		random.shuffle(stim_dict)
+	        	stim_dict = cx.conditions_practice
+	        	random.shuffle(stim_dict)
 	        else:
-	        	if questionType == "uneq":
-	        		stim_dict = cx.conditions_uneq
-	        		random.shuffle(stim_dict)
-	        	else:
-	        		stim_dict = cx.conditions_eq
-	        		random.shuffle(stim_dict)
+	        	stim_dict = cx.conditions_test
+	        	random.shuffle(stim_dict)
 	        for x in range(len(stim_dict)):
 	                stim_x = stim_dict[x]
 	                amp_T1 = self.jitterFx(stim_x.get("T1_amp"))
@@ -90,16 +85,6 @@ class helprs:
 			x.pack()
 			x.place()
 
-	# def tone_fx(self, vibHz, stereo, audioHz):
-	# 	if stereo:
-	# 		stereoData = np.column_stack([vibHz, audioHz])
-	# 		sd.play(stereoData,44100)
-	# 	else:
-	# 		audioHz = np.zeros(len(vibHz))
-	# 		stereoData = np.column_stack([vibHz, audioHz])
-	# 		sd.play(stereoData, 44100)
-	# 	sd.wait()
-
 	def toggle_locked(self):
 		LoG = globals()
 		locked = LoG["locked"]
@@ -121,7 +106,7 @@ class helprs:
 class trialFunctions:
 
 	def __init__(self):
-		self.H = helprs()
+		pass
 
 	def get_keypress_intro(self):
 		win.bind("<Key>",self.compute_key_pressed_intro)
@@ -158,12 +143,12 @@ class trialFunctions:
 				LoG["intro_locked"] = True
 				LoG["intro"] = False
 				LoG["practice"] = True
-				LoG["list_trial_dicts"] = list_trial_dicts_practice_eq
+				LoG["list_trial_dicts"] = list_trial_dicts_practice
 				StimInfo = Label(frame, font=("Arial",25))
 				FaceLabel = Label(frame, pady=50, borderwidth=50)
 				FaceTxt = Label(frame, font=("Arial",18))
-				self.H.forget([close_btn])
-				self.H.forget([Text1, Text2])
+				H.forget([close_btn])
+				H.forget([Text1, Text2])
 				self.trial_fx(firstCall=False)
 
 			elif response=="t":
@@ -171,8 +156,8 @@ class trialFunctions:
 					LoG["intro_locked"] = True
 					LoG["intro"] = False
 					LoG["practice"] = False
-					LoG["list_trial_dicts"] = list_trial_dicts_practice_eq
-					self.H.forget([Text1,Text2])
+					LoG["list_trial_dicts"] = list_trial_dicts_test
+					H.forget([Text1,Text2])
 					self.trial_fx(firstCall=False)
 				else:
 					messagebox.showinfo(parent=win,message="Practice session not completed.")
@@ -196,8 +181,8 @@ class trialFunctions:
 			global Text1, Text2
 			Text1 = Label(frame, font=("Arial bold", 25))
 			Text2 = Label(frame, font=("Arial", 25))
-			self.H.text_fx(Text1,"How to proceed",False,None)
-			self.H.text_fx(Text2, """
+			H.text_fx(Text1,"How to proceed",False,None)
+			H.text_fx(Text2, """
 
  1. Press I to open and read the instructions
 
@@ -225,37 +210,41 @@ class trialFunctions:
 			self.thxPage()
 			self.trial_fx(firstCall=True)
 		else:
-			cur_question = cur_trial_dict.get("question")
+			cur_target = int(cur_trial_dict.get("resp_T"))
 			cur_prompt = """
 
 
-""" + cur_question + """
+""" + cur_target + """
 
-""" + fj_message
-			frame.after(500, self.H.text_fx, StimInfo, """
+"""
+			amp_T1 = H.quadFx(cur_trial_dict.get("T1_hz"))
+			amp_T2 = H.quadFx(cur_trial_dict.get("T2_hz"))
+			amp_T3 = H.quadFx(cur_trial_dict.get("T3_hz"))
+
+			frame.after(500, H.text_fx, StimInfo, """
 
 
 
 ((( T1 )))""", False, None)
-			frame.after(600, self.H.playVib, cur_trial_dict.get("T1_amp"), 1, cur_trial_dict.get("T1_hz"))
-			frame.after(1600, self.H.forget, [StimInfo])
-			frame.after(2600, self.H.text_fx, StimInfo, """
+			frame.after(600, H.playVib, amp_T1, 1, cur_trial_dict.get("T1_hz"))
+			frame.after(1600, H.forget, [StimInfo])
+			frame.after(2600, H.text_fx, StimInfo, """
 
 
 
 ((( T2 )))""", False, None)
-			frame.after(2700, self.H.playVib, cur_trial_dict.get("T2_amp"), 1, cur_trial_dict.get("T2_hz"))
-			frame.after(3700, self.H.forget, [StimInfo])
-			frame.after(4700, self.H.text_fx, StimInfo, """
+			frame.after(2700, H.playVib, amp_T2, 1, cur_trial_dict.get("T2_hz"))
+			frame.after(3700, H.forget, [StimInfo])
+			frame.after(4700, H.text_fx, StimInfo, """
 
 
 
-((( P )))""", False, None)
-			frame.after(4800, self.H.playVib, cur_trial_dict.get("P_amp"), 1, cur_trial_dict.get("P_hz"))		
-			frame.after(5800, self.H.forget, [StimInfo])
-			frame.after(5800, self.H.text_fx, StimInfo, cur_prompt, False, None)
-			frame.after(5800, self.H.toggle_locked) # var locked toggled to False
-			frame.after(5800, self.H.get_t0)
+((( T3 )))""", False, None)
+			frame.after(4800, H.playVib, amp_T3, 1, cur_trial_dict.get("T3_hz"))		
+			frame.after(5800, H.forget, [StimInfo])
+			frame.after(5800, H.text_fx, StimInfo, cur_prompt, False, None)
+			frame.after(5800, H.toggle_locked) # var locked toggled to False
+			frame.after(5800, H.get_t0)
 			frame.after(5800, self.get_keypress)
 
 	def get_keypress(self):
@@ -270,12 +259,12 @@ class trialFunctions:
 		 	response = event.char
 		 	
 		 	if response=="f" or response=="j":
-		 		LoG["rt"] = self.H.get_rt()
+		 		LoG["rt"] = H.get_rt()
 		 		LoG["trial"] += 1
 		 		if LoG["practice"]==False:
 		 			LoG["trials_to_feedback"] -= 1
 
-		 		self.H.forget([Countr,StimInfo])
+		 		H.forget([Countr,StimInfo])
 		 		response_v = meaning_f if response == "f" else meaning_j
 		 		cur_question = cur_trial_dict.get("question")
 
@@ -333,7 +322,7 @@ class trialFunctions:
 	 				cur_trial_dict.get("P_amp"),
 	 				response_v,'NA',resp_sdt,LoG["rt"],'NA']
 
-		 		self.H.remember([rating_label])
+		 		H.remember([rating_label])
 		 		rating_label['text'] = KeyMapReminder
 		 		self.get_keypress_rating()
 
@@ -342,7 +331,7 @@ class trialFunctions:
 
 	def killFeedback(self, event):
 		win.unbind("<Key>")
-		self.H.forget([StimInfo, FaceLabel, FaceTxt])
+		H.forget([StimInfo, FaceLabel, FaceTxt])
 		self.trial_fx(False)
 
 	def present_compute_rating(self, event):
@@ -363,7 +352,7 @@ class trialFunctions:
 						data.loc[[len(data)-1],"response_rating"] = "quiteSure"
 					break
 			if included==True:
-				self.H.forget([Countr,StimInfo,rating_label])
+				H.forget([Countr,StimInfo,rating_label])
 				if LoG["practice"]==True or LoG["trials_to_feedback"]==0:
 					FaceTxt['text'] = "Press space bar to continue."
 					if LoG["practice"]==True:
@@ -403,8 +392,8 @@ class trialFunctions:
 Time for a break?
 Continue by pressing the space bar.
 """
-					self.H.remember([StimInfo])
-					self.H.text_fx(StimInfo,mssg,False,None)
+					H.remember([StimInfo])
+					H.text_fx(StimInfo,mssg,False,None)
 					win.bind("<Key>", self.killFeedback)
 				else:
 					self.trial_fx(False)
@@ -616,12 +605,9 @@ columnNames = ['pcode','practice','trial',
 logfile_path = os.getcwd() + "/"
 logfile_name = "{}dms_{}.csv".format(logfile_path, pcode)
 # nTest = len(conditions_test)
-list_trial_dicts_practice_eq = H.stimfx(practice=True, questionType="eq")
-list_trial_dicts_test_eq = H.stimfx(practice=False, questionType="eq")
-list_trial_dicts_practice_uneq = H.stimfx(practice=True, questionType="uneq")
-list_trial_dicts_test_uneq = H.stimfx(practice=False, questionType="uneq")
-print(len(list_trial_dicts_test_eq), len(list_trial_dicts_test_uneq), 
-	len(list_trial_dicts_practice_eq), len(list_trial_dicts_practice_uneq))
+list_trial_dicts_practice = cx.conditions_practice
+list_trial_dicts_test = cx.conditions_test
+print(len(list_trial_dicts_test),len(list_trial_dicts_practice))
 
 TF.trial_fx(firstCall=True)
 

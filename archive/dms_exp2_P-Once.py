@@ -1,17 +1,52 @@
+import pyaudio 
 import tkinter as tk
 from tkinter import *
 from tkinter import messagebox
 from PIL import ImageTk, Image
-import module_waveforms as wf
-import sounddevice as sd
 import time
 import random
+import numpy as np
+
+def quadFx(Hz,a=0.000082585,b=-0.027730656,c=3.144860541):
+		return(a*Hz**2 + b*Hz + c)
+
+def playVib(vol,dur,Hz):
+
+	    p = pyaudio.PyAudio()
+	 
+	    volume = vol  # range [0.0, 1.0]
+	    fs = 44100  # sampling rate, Hz, must be integer
+	    duration = dur  # in seconds, may be float
+	    f = Hz  # sine frequency, Hz, may be float
+
+	    # generate samples, note conversion to float32 array
+	    samples = (np.sin(2 * np.pi * np.arange(fs * duration) * f / fs)).astype(np.float32)
+	    # print(len(samples))
+
+	    # per @yahweh comment explicitly convert to bytes sequence
+	    output_bytes = (volume * samples).tobytes()
+
+	    # for paFloat32 sample values must be in range [-1.0, 1.0]
+	    stream = p.open(format=pyaudio.paFloat32,
+	                    channels=1,
+	                    rate=fs,
+	                    output=True)
+
+	    # play. May repeat with different volume values (if done interactively)
+	    start_time = time.time()
+	    stream.write(output_bytes)
+	    # print("Played sound for {:.2f} seconds".format(time.time() - start_time))
+
+	    stream.stop_stream()
+	    stream.close()
+
+	    p.terminate()
 
 def newWindow(title,geom):
 	Window = tk.Toplevel()
 	Window.title(title)
 	Window.geometry(geom)
-	frame = tk.Frame(Window, height=HEIGHT, width=WIDTH)
+	frame = tk.Frame(Window, height=300, width=600)
 	frame.pack()
 
 def text_fx(field_name,txt,state,fg,pady):
@@ -73,25 +108,23 @@ def change_hz(val):
 	cur_hz = slider.get()
 	print(cur_hz)
 
-def tone_fx(vibHz):
-	sd.play(vibHz,44100)
-	sd.wait()
+def tone_fx(cur_hz):
+	cur_amp = quadFx(cur_hz)
+	playVib(cur_amp,1,cur_hz)
 
 def present_probe():
 	global cur_hz, P_is_on, btns_active
 	if P_is_on:
 		btns_active = True
-		vibHz = wf.soundGene2(44100,1,fq=cur_hz,amp=1)
-		sd.play(vibHz,44100)
-		sd.wait(0)
+		cur_amp = quadFx(cur_hz)
+		playVib(cur_amp,1,cur_hz)
 		#display_frame.after(500,play_probe)
 def play_probe():
 	global cur_hz, P_is_on, btns_active
 	if P_is_on:
 		btns_active = True
-		vibHz = wf.soundGene2(44100,1,fq=cur_hz,amp=1)
-		sd.play(vibHz,44100)
-		sd.wait(0)
+		cur_amp = quadFx(cur_hz)
+		playVib(cur_amp,1,cur_hz)
 
 def trial_fx(firstCall):
 	LoG = globals()
@@ -110,8 +143,8 @@ def trial_fx(firstCall):
 def present_trialStims():
 	global P_is_on
 	P_is_on = True
-	T1_hz = wf.soundGene2(44100,1,fq=138,amp=1)
-	T2_hz = wf.soundGene2(44100,1,fq=170,amp=1)
+	T1_hz = 138
+	T2_hz = 170
 	cur_message = "Adjust P towards " + crit_target + "."
 	display_frame.after(1000, text_fx, StimInfo, "((( T1 )))","normal", "black", 120)
 	display_frame.after(1010, tone_fx, T1_hz)

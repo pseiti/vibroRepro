@@ -267,8 +267,6 @@ class trialFunctions:
 		 		H.forget([Countr,StimInfo])
 		 		response_v = meaning_f if response == "f" else meaning_j
 		 		cur_question = cur_trial_dict.get("question")
-
-		 		equal_question = False if "!" in cur_question else True 
 		 		if equal_question:
 		 			requestedTarget = int(cur_question[5])
 		 		else:

@@ -130,7 +130,7 @@ def trial_fx(firstCall):
 	LoG = globals()
 	ts_cur = time.time()
 	if (ts_cur-LoG["ts_init"])>duration_break:
-		mb = messagebox.showinfo(parent=win,message="Zeit für eine Pause?\nAber bitte Vorsicht - Drücken Sie die 'Enter'-Taste oder klicken Sie 'OK' erst dann, wenn Sie ausreichend konzentriert sind: Durch das Schließen des Fensters beginnt nämlich schon der nächste Durchgang.")
+		mb = messagebox.showinfo(parent=menu,message="Zeit für eine Pause?\nAber bitte Vorsicht - Drücken Sie die 'Enter'-Taste oder klicken Sie 'OK' erst dann, wenn Sie ausreichend konzentriert sind: Durch das Schließen des Fensters beginnt nämlich schon der nächste Durchgang.")
 		LoG["ts_init"] = time.time()
 	if firstCall==True:
 		global nTrials

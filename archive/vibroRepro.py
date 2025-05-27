@@ -96,11 +96,11 @@ def submit_response():
 	global btns_active
 	if btns_active:
 		btns_active = False
-		display_frame.after(1,turn_off_P)
-		display_frame.after(2,clear_content([StimInfo]))
-		display_frame.after(3,text_fx, StimInfo, "How confident are you?","normal", "black", 20)
-		display_frame.after(4,remember, [rating_label])
-		display_frame.after(5,get_keypress_rating)
+		turn_off_P()
+		# remember(StimInfo)
+		display_frame.after(1, StimInfo, "Prepare for next stimulus!", "normal", "black", 120) # text_fx, StimInfo, "((( T1 )))","normal", "black", 120
+		display_frame.after(1000,clear_content,[StimInfo])
+		display_frame.after(1000,trial_fx, False)
 
 def change_hz(val):
 	global cur_hz
@@ -169,7 +169,7 @@ print(crit_target)
 
 menu = tk.Tk()
 menu.title("Menu")
-menu.geometry('200x300+800+355')
+menu.geometry('200x300+1200+355')
 menu_frame = tk.Frame(menu, height=300, width=200)
 menu_frame.pack()
 
@@ -181,7 +181,7 @@ display_frame.pack()
 
 controlr = tk.Toplevel()
 controlr.title("Controller")
-controlr.geometry('650x300+400+355')
+controlr.geometry('650x300+400+400')
 controlr_frame = tk.Frame(controlr, height=300, width=500)
 controlr_frame.pack()
 

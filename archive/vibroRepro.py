@@ -1,17 +1,52 @@
+import pyaudio 
 import tkinter as tk
 from tkinter import *
 from tkinter import messagebox
 from PIL import ImageTk, Image
-import module_waveforms as wf
-import sounddevice as sd
 import time
 import random
+import numpy as np
+
+def quadFx(Hz,a=0.000082585,b=-0.027730656,c=3.144860541):
+		return(a*Hz**2 + b*Hz + c)
+
+def playVib(vol,dur,Hz):
+
+	    p = pyaudio.PyAudio()
+	 
+	    volume = vol  # range [0.0, 1.0]
+	    fs = 44100  # sampling rate, Hz, must be integer
+	    duration = dur  # in seconds, may be float
+	    f = Hz  # sine frequency, Hz, may be float
+
+	    # generate samples, note conversion to float32 array
+	    samples = (np.sin(2 * np.pi * np.arange(fs * duration) * f / fs)).astype(np.float32)
+	    # print(len(samples))
+
+	    # per @yahweh comment explicitly convert to bytes sequence
+	    output_bytes = (volume * samples).tobytes()
+
+	    # for paFloat32 sample values must be in range [-1.0, 1.0]
+	    stream = p.open(format=pyaudio.paFloat32,
+	                    channels=1,
+	                    rate=fs,
+	                    output=True)
+
+	    # play. May repeat with different volume values (if done interactively)
+	    start_time = time.time()
+	    stream.write(output_bytes)
+	    # print("Played sound for {:.2f} seconds".format(time.time() - start_time))
+
+	    stream.stop_stream()
+	    stream.close()
+
+	    p.terminate()
 
 def newWindow(title,geom):
 	Window = tk.Toplevel()
 	Window.title(title)
 	Window.geometry(geom)
-	frame = tk.Frame(Window, height=HEIGHT, width=WIDTH)
+	frame = tk.Frame(Window, height=300, width=600)
 	frame.pack()
 
 def text_fx(field_name,txt,state,fg,pady):
@@ -43,21 +78,20 @@ def repeat_trial():
 		display_frame.after(500,clear_content([StimInfo]))
 		display_frame.after(1000,present_trialStims)
 
+rating_keys = ["1","2","3","4","5","6"]
 def get_keypress_rating():
-	controlr_frame.bind("<Key>",compute_rating)
+	display.bind("<Key>",compute_rating)
 def compute_rating(event):
-	#LoG = globals()
-	#locked = LoG["locked"]
 	included = False
 	response = event.char
+	print(response)
 	for x in rating_keys:
 		if response==x:
 			included = True
 			break
 	if included==True:
-		menu.destroy()
+		trial_fx(False)
 
-	
 def submit_response():
 	global btns_active
 	if btns_active:
@@ -68,33 +102,35 @@ def submit_response():
 		display_frame.after(4,remember, [rating_label])
 		display_frame.after(5,get_keypress_rating)
 
-def quadFx(Hz,a=0.000082585,b=-0.027730656,c=3.144860541):
-	return(a*Hz**2 + b*Hz + c)
-
-
 def change_hz(val):
 	global cur_hz
 	cur_hz = slider.get()
-	play_probe()
+	tone_fx(cur_hz)
+	print(cur_hz)
 
-def tone_fx(vibHz):
-	sd.play(vibHz,44100)
-	sd.wait()
+def tone_fx(cur_hz):
+	cur_amp = quadFx(cur_hz)
+	playVib(cur_amp,1,cur_hz)
 
+def present_probe():
+	global cur_hz, P_is_on, btns_active
+	if P_is_on:
+		btns_active = True
+		cur_amp = quadFx(cur_hz)
+		playVib(cur_amp,1,cur_hz)
+		#display_frame.after(500,play_probe)
 def play_probe():
 	global cur_hz, P_is_on, btns_active
 	if P_is_on:
 		btns_active = True
-		vibHz = wf.soundGene2(44100,1,fq=cur_hz,amp=quadFx(Hz=cur_hz))
-		sd.play(vibHz,44100)
-		sd.wait(0)
-		display_frame.after(500,play_probe)
+		cur_amp = quadFx(cur_hz)
+		playVib(cur_amp,1,cur_hz)
 
 def trial_fx(firstCall):
 	LoG = globals()
 	ts_cur = time.time()
 	if (ts_cur-LoG["ts_init"])>duration_break:
-		mb = messagebox.showinfo(parent=win,message="Zeit für eine Pause?\nAber bitte Vorsicht - Drücken Sie die 'Enter'-Taste oder klicken Sie 'OK' erst dann, wenn Sie ausreichend konzentriert sind: Durch das Schließen des Fensters beginnt nämlich schon der nächste Durchgang.")
+		mb = messagebox.showinfo(parent=menu,message="Zeit für eine Pause?\nAber bitte Vorsicht - Drücken Sie die 'Enter'-Taste oder klicken Sie 'OK' erst dann, wenn Sie ausreichend konzentriert sind: Durch das Schließen des Fensters beginnt nämlich schon der nächste Durchgang.")
 		LoG["ts_init"] = time.time()
 	if firstCall==True:
 		global nTrials
@@ -107,8 +143,8 @@ def trial_fx(firstCall):
 def present_trialStims():
 	global P_is_on
 	P_is_on = True
-	T1_hz = wf.soundGene2(44100,1,fq=138,amp=1)
-	T2_hz = wf.soundGene2(44100,1,fq=170,amp=1)
+	T1_hz = 138
+	T2_hz = 170
 	cur_message = "Adjust P towards " + crit_target + "."
 	display_frame.after(1000, text_fx, StimInfo, "((( T1 )))","normal", "black", 120)
 	display_frame.after(1010, tone_fx, T1_hz)
@@ -116,9 +152,8 @@ def present_trialStims():
 	display_frame.after(3000, text_fx, StimInfo, "((( T2 )))", "normal", "black", 120)
 	display_frame.after(3010, tone_fx, T2_hz)
 	display_frame.after(4000, clear_content, [StimInfo])
-	#display_frame.after(5000, text_fx, StimInfo, "((( P )))", "normal", "black", 120)
 	display_frame.after(5000, text_fx, StimInfo, cur_message, "normal", "black", 120)
-	display_frame.after(5010, play_probe)
+	display_frame.after(5010, present_probe)
 
 ## Global variables
 ts_init = time.time()
@@ -134,18 +169,19 @@ print(crit_target)
 
 menu = tk.Tk()
 menu.title("Menu")
+menu.geometry('200x300+800+355')
 menu_frame = tk.Frame(menu, height=300, width=200)
 menu_frame.pack()
 
 display = tk.Toplevel()
 display.title("Display")
-display.geometry('650x300+400+50')
+display.geometry('650x300+400+5')
 display_frame = tk.Frame(display, height=300, width=500)
 display_frame.pack()
 
 controlr = tk.Toplevel()
 controlr.title("Controller")
-controlr.geometry('650x300+400+450')
+controlr.geometry('650x300+400+355')
 controlr_frame = tk.Frame(controlr, height=300, width=500)
 controlr_frame.pack()
 
@@ -168,11 +204,13 @@ slider.set(cur_hz)
 slider.place(relx=.5,rely=.2)
 repeat_btn = Button(controlr_frame, text = "Repeat", command = repeat_trial,
 	bg="White", fg="Black", font=("Arial",15), padx=7, pady=10, height=1, width=8)
-repeat_btn.place(relx=0.1,rely=.4)
+repeat_btn.place(relx=0.1,rely=.6)
 submit_btn = Button(controlr_frame, text = "Submit", command = submit_response,
 	bg="White", fg="Black", font=("Arial",15), padx=7, pady=10, height=1, width=8)
-submit_btn.place(relx=0.75,rely=.4)
-
+submit_btn.place(relx=0.75,rely=.6)
+play_btn = Button(controlr_frame, text = "Play P", command = play_probe,
+	bg="White", fg="Darkgreen", font=("Arial",15,"bold"), padx=7, pady=10, height=1, width=8)
+play_btn.place(relx=0.1,rely=.3)
 rating_image = ImageTk.PhotoImage(Image.open("rating_scale.png"))
 rating_label = Label(display_frame, image=rating_image)
 

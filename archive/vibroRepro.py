@@ -97,15 +97,16 @@ def submit_response():
 	if btns_active:
 		btns_active = False
 		turn_off_P()
-		# remember(StimInfo)
-		display_frame.after(1, StimInfo, "Prepare for next stimulus!", "normal", "black", 120) # text_fx, StimInfo, "((( T1 )))","normal", "black", 120
-		display_frame.after(1000,clear_content,[StimInfo])
-		display_frame.after(1000,trial_fx, False)
+		display_frame.after(1, clear_content, [StimInfo])
+		display_frame.after(1, text_fx, StimInfo, "Prepare for next stimulus!", "normal", "black", 120) # text_fx, StimInfo, "((( T1 )))","normal", "black", 120
+		display_frame.after(1000, clear_content, [StimInfo])
+		display_frame.after(1000, trial_fx, False)
 
 def change_hz(val):
 	global cur_hz
 	cur_hz = slider.get()
-	tone_fx(cur_hz)
+	if btns_active:
+		tone_fx(cur_hz)
 	print(cur_hz)
 
 def tone_fx(cur_hz):
@@ -135,17 +136,19 @@ def trial_fx(firstCall):
 	if firstCall==True:
 		global nTrials
 		nTrials = 0
-	global StimInfo	
-	StimInfo = Text(display_frame,height=4, highlightthickness=0, borderwidth=0, 
-		font=("Arial bold",20))
 	present_trialStims()
 
 def present_trialStims():
-	global P_is_on
+	global P_is_on, StimInfo
+	StimInfo = Text(display_frame,height=4, highlightthickness=0, borderwidth=0, 
+		font=("Arial bold",20))
 	P_is_on = True
 	T1_hz = 138
 	T2_hz = 170
 	cur_message = "Adjust P towards " + crit_target + "."
+	# t0 = time.time()
+	# while time.time()-t0 < 2:
+	# 	pass
 	display_frame.after(1000, text_fx, StimInfo, "((( T1 )))","normal", "black", 120)
 	display_frame.after(1010, tone_fx, T1_hz)
 	display_frame.after(2000, clear_content, [StimInfo])
@@ -165,7 +168,6 @@ btns_active = False
 
 targets = ["T1","T2"]; random.shuffle(targets)
 crit_target = targets[0]
-print(crit_target)
 
 menu = tk.Tk()
 menu.title("Menu")
@@ -186,8 +188,7 @@ controlr_frame = tk.Frame(controlr, height=300, width=500)
 controlr_frame.pack()
 
 button_practice = tk.Button(menu, text = "Practice", bg="White", fg="Black", 
-	font=("Arial",15), padx=7, pady=10, height=1, width=8)
-button_practice.place(relx=.3, rely=.4)
+	font=("Arial",15), padx=7, pady=10, height=1, width=8, command=lambda: trial_fx(True))
 button_test = tk.Button(menu, text = "Test", bg="White", fg="Black", 
 	font=("Arial",15), padx=7, pady=10, height=1, width=8)
 button_instr = tk.Button(menu, text = "Instruction", bg="White", fg="Black", 
@@ -213,7 +214,5 @@ play_btn = Button(controlr_frame, text = "Play P", command = play_probe,
 play_btn.place(relx=0.1,rely=.3)
 rating_image = ImageTk.PhotoImage(Image.open("rating_scale.png"))
 rating_label = Label(display_frame, image=rating_image)
-
-trial_fx(firstCall=True)
 
 menu.mainloop()

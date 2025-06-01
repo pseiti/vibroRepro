@@ -6,6 +6,7 @@ from PIL import ImageTk, Image
 import time
 import random
 import numpy as np
+import conditions_exp2 as cx
 
 def quadFx(Hz,a=0.000082585,b=-0.027730656,c=3.144860541):
 		return(a*Hz**2 + b*Hz + c)
@@ -78,19 +79,19 @@ def repeat_trial():
 		display_frame.after(500,clear_content([StimInfo]))
 		display_frame.after(1000,present_trialStims)
 
-rating_keys = ["1","2","3","4","5","6"]
-def get_keypress_rating():
-	display.bind("<Key>",compute_rating)
-def compute_rating(event):
-	included = False
-	response = event.char
-	print(response)
-	for x in rating_keys:
-		if response==x:
-			included = True
-			break
-	if included==True:
-		trial_fx(False)
+# rating_keys = ["1","2","3","4","5","6"]
+# def get_keypress_rating():
+#	display.bind("<Key>",compute_rating)
+# def compute_rating(event):
+# 	included = False
+# 	response = event.char
+# 	print(response)
+# 	for x in rating_keys:
+# 		if response==x:
+# 			included = True
+# 			break
+# 	if included==True:
+# 		trial_fx(False)
 
 def submit_response():
 	global btns_active
@@ -133,27 +134,28 @@ def trial_fx(firstCall):
 	if (ts_cur-LoG["ts_init"])>duration_break:
 		mb = messagebox.showinfo(parent=menu,message="Zeit für eine Pause?\nAber bitte Vorsicht - Drücken Sie die 'Enter'-Taste oder klicken Sie 'OK' erst dann, wenn Sie ausreichend konzentriert sind: Durch das Schließen des Fensters beginnt nämlich schon der nächste Durchgang.")
 		LoG["ts_init"] = time.time()
-	if firstCall==True:
-		global nTrials
-		nTrials = 0
-	present_trialStims()
+	cur_stim = stim_list[len(LoG["data"])]
+	present_trialStims(F1,F2,F3,Cue)
 
-def present_trialStims():
+def present_trialStims(F1,F2,F3,Cue):
 	global P_is_on, StimInfo
 	StimInfo = Text(display_frame,height=4, highlightthickness=0, borderwidth=0, 
 		font=("Arial bold",20))
 	P_is_on = True
-	T1_hz = 138
-	T2_hz = 170
+	# T1_hz = 138
+	# T2_hz = 170
 	cur_message = "Adjust P towards " + crit_target + "."
 	# t0 = time.time()
 	# while time.time()-t0 < 2:
 	# 	pass
 	display_frame.after(1000, text_fx, StimInfo, "((( T1 )))","normal", "black", 120)
-	display_frame.after(1010, tone_fx, T1_hz)
+	display_frame.after(1010, tone_fx, F1)
 	display_frame.after(2000, clear_content, [StimInfo])
 	display_frame.after(3000, text_fx, StimInfo, "((( T2 )))", "normal", "black", 120)
-	display_frame.after(3010, tone_fx, T2_hz)
+	display_frame.after(3010, tone_fx, F2)
+	display_frame.after(4000, clear_content, [StimInfo])
+	display_frame.after(3000, text_fx, StimInfo, "((( T3 )))", "normal", "black", 120)
+	display_frame.after(3010, tone_fx, F3)
 	display_frame.after(4000, clear_content, [StimInfo])
 	display_frame.after(5000, text_fx, StimInfo, cur_message, "normal", "black", 120)
 	display_frame.after(5010, present_probe)
@@ -162,7 +164,7 @@ def present_trialStims():
 ts_init = time.time()
 padding_y = 10
 duration_break = 1*60 # x minutes times 60 seconds
-cur_hz = 154# 154
+cur_hz = 154
 P_is_on = True
 btns_active = False
 
@@ -212,7 +214,7 @@ submit_btn.place(relx=0.75,rely=.6)
 play_btn = Button(controlr_frame, text = "Play P", command = play_probe,
 	bg="White", fg="Darkgreen", font=("Arial",15,"bold"), padx=7, pady=10, height=1, width=8)
 play_btn.place(relx=0.1,rely=.3)
-rating_image = ImageTk.PhotoImage(Image.open("rating_scale.png"))
-rating_label = Label(display_frame, image=rating_image)
+# rating_image = ImageTk.PhotoImage(Image.open("rating_scale.png"))
+# rating_label = Label(display_frame, image=rating_image)
 
 menu.mainloop()

@@ -7,6 +7,7 @@ import time
 import random
 import numpy as np
 import conditions_exp2 as cx
+import pandas as pd
 
 def quadFx(Hz,a=0.000082585,b=-0.027730656,c=3.144860541):
 		return(a*Hz**2 + b*Hz + c)
@@ -131,10 +132,14 @@ def play_probe():
 def trial_fx(firstCall):
 	LoG = globals()
 	ts_cur = time.time()
+	if firstCall:
+		columns = ["i","condition","PTS","Position","F1","F2","F3","Cue","adjustments"]
+		df = pd.DataFrame(columns=columns)
+		LoG["df"] = df
 	if (ts_cur-LoG["ts_init"])>duration_break:
 		mb = messagebox.showinfo(parent=menu,message="Zeit für eine Pause?\nAber bitte Vorsicht - Drücken Sie die 'Enter'-Taste oder klicken Sie 'OK' erst dann, wenn Sie ausreichend konzentriert sind: Durch das Schließen des Fensters beginnt nämlich schon der nächste Durchgang.")
 		LoG["ts_init"] = time.time()
-	cur_stim = stim_list[len(LoG["data"])]
+	cur_stim = stim_list[len(LoG["data"].index)]
 	present_trialStims(F1,F2,F3,Cue)
 
 def present_trialStims(F1,F2,F3,Cue):

@@ -126,7 +126,7 @@ def present_probe():
 		btns_active = True
 		# cur_amp = quadFx(cur_hz)
 		# playVib(cur_amp,1,cur_hz)
-		#display_frame.after(500,play_probe)
+		# display_frame.after(500,play_probe)
 def play_probe():
 	global cur_hz, P_is_on, btns_active
 	if P_is_on:
@@ -143,11 +143,9 @@ def trial_fx(firstCall):
 		mb = messagebox.showinfo(parent=menu,message="Zeit für eine Pause?\nAber bitte Vorsicht - Drücken Sie die 'Enter'-Taste oder klicken Sie 'OK' erst dann, wenn Sie ausreichend konzentriert sind: Durch das Schließen des Fensters beginnt nämlich schon der nächste Durchgang.")
 		LoG["ts_init"] = time.time()
 	cur_stim = stim_list[len(LoG["df"].index)]
-	print(cur_stim)
 	F1 = cur_stim.get("T1_hz")
 	F2 = cur_stim.get("T2_hz")
 	F3 = cur_stim.get("T3_hz")
-	print(F1,F2,F3)
 	Cue = cur_stim.get("resp_T")
 	present_trialStims(F1,F2,F3,Cue)
 

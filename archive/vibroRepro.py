@@ -6,7 +6,7 @@ from PIL import ImageTk, Image
 import time
 import random
 import numpy as np
-import conditions_exp2 as cx
+import conditions_exp2_1 as cx
 import pandas as pd
 
 def quadFx(Hz,a=0.000082585,b=-0.027730656,c=3.144860541):
@@ -106,10 +106,15 @@ def submit_response():
 
 def change_hz(val):
 	global cur_hz
+	LoG = globals()
+	df = LoG["df"]
 	cur_hz = slider.get()
+	# columns = ["i","condition","PTS","Position","F1","F2","F3","Cue","adjustments"]
+	df.loc[len(df.index),["i","adjustments"]] = [len(df.index),cur_hz]
 	if btns_active:
 		tone_fx(cur_hz)
-	print(cur_hz)
+	LoG["df"] = df
+	print(df)
 
 def tone_fx(cur_hz):
 	cur_amp = quadFx(cur_hz)
@@ -119,8 +124,8 @@ def present_probe():
 	global cur_hz, P_is_on, btns_active
 	if P_is_on:
 		btns_active = True
-		cur_amp = quadFx(cur_hz)
-		playVib(cur_amp,1,cur_hz)
+		# cur_amp = quadFx(cur_hz)
+		# playVib(cur_amp,1,cur_hz)
 		#display_frame.after(500,play_probe)
 def play_probe():
 	global cur_hz, P_is_on, btns_active
@@ -133,13 +138,17 @@ def trial_fx(firstCall):
 	LoG = globals()
 	ts_cur = time.time()
 	if firstCall:
-		columns = ["i","condition","PTS","Position","F1","F2","F3","Cue","adjustments"]
-		df = pd.DataFrame(columns=columns)
-		LoG["df"] = df
+		LoG["i"] = len(df.index)
 	if (ts_cur-LoG["ts_init"])>duration_break:
 		mb = messagebox.showinfo(parent=menu,message="Zeit für eine Pause?\nAber bitte Vorsicht - Drücken Sie die 'Enter'-Taste oder klicken Sie 'OK' erst dann, wenn Sie ausreichend konzentriert sind: Durch das Schließen des Fensters beginnt nämlich schon der nächste Durchgang.")
 		LoG["ts_init"] = time.time()
-	cur_stim = stim_list[len(LoG["data"].index)]
+	cur_stim = stim_list[len(LoG["df"].index)]
+	print(cur_stim)
+	F1 = cur_stim.get("T1_hz")
+	F2 = cur_stim.get("T2_hz")
+	F3 = cur_stim.get("T3_hz")
+	print(F1,F2,F3)
+	Cue = cur_stim.get("resp_T")
 	present_trialStims(F1,F2,F3,Cue)
 
 def present_trialStims(F1,F2,F3,Cue):
@@ -159,17 +168,16 @@ def present_trialStims(F1,F2,F3,Cue):
 	display_frame.after(3000, text_fx, StimInfo, "((( T2 )))", "normal", "black", 120)
 	display_frame.after(3010, tone_fx, F2)
 	display_frame.after(4000, clear_content, [StimInfo])
-	display_frame.after(3000, text_fx, StimInfo, "((( T3 )))", "normal", "black", 120)
-	display_frame.after(3010, tone_fx, F3)
-	display_frame.after(4000, clear_content, [StimInfo])
-	display_frame.after(5000, text_fx, StimInfo, cur_message, "normal", "black", 120)
-	display_frame.after(5010, present_probe)
+	display_frame.after(5000, text_fx, StimInfo, "((( T3 )))", "normal", "black", 120)
+	display_frame.after(5010, tone_fx, F3)
+	display_frame.after(6000, clear_content, [StimInfo])
+	display_frame.after(7000, text_fx, StimInfo, cur_message, "normal", "black", 120)
+	display_frame.after(7010, present_probe)
 
 ## Global variables
 ts_init = time.time()
 padding_y = 10
 duration_break = 1*60 # x minutes times 60 seconds
-cur_hz = 154
 P_is_on = True
 btns_active = False
 
@@ -208,7 +216,7 @@ button_test.place(relx=.3, rely=.6)
 slider = Scale(controlr_frame, from_=383, to=50, length=200, showvalue=0, 
 	command=change_hz)
 #slider.set((383-50)/2+50)
-slider.set(cur_hz)
+slider.set(np.random.randint(1,300))
 slider.place(relx=.5,rely=.2)
 repeat_btn = Button(controlr_frame, text = "Repeat", command = repeat_trial,
 	bg="White", fg="Black", font=("Arial",15), padx=7, pady=10, height=1, width=8)
@@ -222,4 +230,7 @@ play_btn.place(relx=0.1,rely=.3)
 # rating_image = ImageTk.PhotoImage(Image.open("rating_scale.png"))
 # rating_label = Label(display_frame, image=rating_image)
 
+columns = ["i","condition","PTS","Position","F1","F2","F3","Cue","adjustments"]
+df = pd.DataFrame(columns=columns)
+stim_list = cx.conditions_practice
 menu.mainloop()

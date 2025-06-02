@@ -70,5 +70,5 @@ def dict_maker(unique_conditions,nRep):
 conditions_practice = dict_maker(unique_conditions=unique_conditions_practice,nRep=2)
 conditions_test = dict_maker(unique_conditions=unique_conditions_test,nRep=5)
 
-
+print(conditions_practice[:4])
 

@@ -169,7 +169,8 @@ def trial_fx(firstCall):
 			LoG["Cue"] = Cue
 			present_trialStims(F1,F2,F3,Cue)
 		else:
-			text_fx(StimInfo, "Thank you for your participation. You have passed the test session too.",False,None)
+			text_fx(StimInfo, """
+Thank you for your participation. You have passed the test session too.""",False,None)
 
 def present_trialStims(F1,F2,F3,Cue):
 	global P_is_on, StimInfo
@@ -177,21 +178,26 @@ def present_trialStims(F1,F2,F3,Cue):
 	StimInfo = Label(display_frame, font=("Arial bold",20))
 	# T1_hz = 138
 	# T2_hz = 170
-	adjustP_message = "Adjust P towards " + crit_target + "."
+	adjustP_message = """
+Adjust P towards """ + crit_target + "."
 	# t0 = time.time()
 	# while time.time()-t0 < 2:
 	# 	pass
 	# text_fx(StimInfo,"((( T1 )))",False,None)
-	display_frame.after(990, text_fx, StimInfo, "((( T1 )))",False,None)
+	display_frame.after(990, text_fx, StimInfo, """
+((( T1 )))""",False,None)
 	display_frame.after(1000, tone_fx, F1)
 	display_frame.after(2000, forget, [StimInfo])
-	display_frame.after(2990, text_fx, StimInfo, "((( T2 )))",False,None)
+	display_frame.after(2990, text_fx, StimInfo, """
+((( T2 )))""",False,None)
 	display_frame.after(3000, tone_fx, F2)
 	display_frame.after(4000, forget, [StimInfo])
-	display_frame.after(4990, text_fx, StimInfo, "((( T3 )))",False,None)
+	display_frame.after(4990, text_fx, StimInfo, """
+((( T3 )))""",False,None)
 	display_frame.after(5000, tone_fx, F3)
 	display_frame.after(6000, forget, [StimInfo])
-	display_frame.after(7000, text_fx, StimInfo, str(Cue),False,None)
+	display_frame.after(7000, text_fx, StimInfo, """
+"""+str(Cue),False,None)
 	display_frame.after(8000, text_fx, StimInfo, adjustP_message,False,None)
 	display_frame.after(8000, make_btns_active)
 

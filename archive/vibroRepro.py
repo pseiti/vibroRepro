@@ -64,6 +64,7 @@ def text_fx(field_name,txt,configureState,state):
 def forget(objects):
 	for x in objects:
 		x.pack_forget()
+
 def remember(objects):
 	for x in objects:
 		x.pack()
@@ -103,14 +104,18 @@ def repeat_trial():
 def submit_response():
 	LoG = globals()
 	if LoG["btns_active"]:
+		slider.set(np.random.randint(1,300))
+		# LoG[""]
+		LoG["i"]=1
 		LoG["track"]+=1
 		LoG["btns_active"] = False
 		LoG["P_is_on"] = False
 		df.to_csv(logfile_name)
 		display_frame.after(1, forget, [StimInfo])
-		display_frame.after(1, text_fx, StimInfo, "Prepare for next stimulus!", False, None)
-		display_frame.after(1000, forget, [StimInfo])
-		display_frame.after(1000, trial_fx, False)
+		display_frame.after(1, text_fx, StimInfo, """
+Prepare for next stimulus!""", False, None)
+		display_frame.after(2000, forget, [StimInfo])
+		display_frame.after(3000, trial_fx, False)
 
 def change_hz(val):
 	global cur_hz
@@ -119,9 +124,10 @@ def change_hz(val):
 	cur_hz = slider.get()
 	# columns = ["track","i","condition","PTS","Position","F1","F2","F3","Cue","adjustments"]
 	if LoG["P_is_on"]:
+		LoG["i"] += 1
 		cur_stim = LoG["cur_stim"]
 		df.loc[len(df.index),["track","i","condition","PTS","Position",
-		"F1","F2","F3","Cue","adjustment"]] = [LoG["track"],len(df.index),cur_stim.get("condition"),
+		"F1","F2","F3","Cue","adjustment"]] = [LoG["track"],LoG["i"],cur_stim.get("condition"),
 		cur_stim.get("Same_or_Diff"),cur_stim.get("seqPos"),
 		LoG["F1"],LoG["F2"],LoG["F3"],LoG["Cue"],cur_hz]
 		if btns_active:
@@ -132,6 +138,10 @@ def change_hz(val):
 def tone_fx(cur_hz):
 	cur_amp = quadFx(cur_hz)
 	playVib(cur_amp,1,cur_hz)
+
+def switchToTest():
+	LoG = globals()
+	LoG["practice"] = False
 
 def make_btns_active():
 	global btns_active
@@ -151,13 +161,16 @@ def trial_fx(firstCall):
 	if not LoG["P_is_on"]:
 		if firstCall:
 			LoG["track"]=1
-			LoG["i"] = len(df.index)
+			if LoG["practice"]:
+				LoG["stim_list"] = cx.conditions_practice
+			else:
+				LoG["stim_list"] = cx.conditions_test
 		# if (ts_cur-LoG["ts_init"])>duration_break:
 		# 	mb = messagebox.showinfo(parent=menu,message="Zeit für eine Pause?\nAber bitte Vorsicht - Drücken Sie die 'Enter'-Taste oder klicken Sie 'OK' erst dann, wenn Sie ausreichend konzentriert sind: Durch das Schließen des Fensters beginnt nämlich schon der nächste Durchgang.")
 		# 	LoG["ts_init"] = time.time()
-		if len(stim_list)>len(LoG["df"].index):
-			print(len(stim_list),len(LoG["df"].index))
-			cur_stim = stim_list[len(LoG["df"].index)]
+		if len(LoG["stim_list"])>len(LoG["df"].index):
+			print(len(LoG["stim_list"]),len(LoG["df"].index))
+			cur_stim = LoG["stim_list"][len(LoG["df"].index)]
 			LoG["cur_stim"] = cur_stim
 			F1 = cur_stim.get("T1_hz")
 			F2 = cur_stim.get("T2_hz")
@@ -173,13 +186,15 @@ def trial_fx(firstCall):
 Thank you for your participation. You have passed the test session too.""",False,None)
 
 def present_trialStims(F1,F2,F3,Cue):
-	global P_is_on, StimInfo
-	P_is_on = True
-	StimInfo = Label(display_frame, font=("Arial bold",20))
+	# global P_is_on, StimInfo
+	LoG = globals()
+	LoG["P_is_on"] = True
+	StimInfo = LoG["StimInfo"]
+	# StimInfo = Label(display_frame, font=("Arial bold",20))
 	# T1_hz = 138
 	# T2_hz = 170
 	adjustP_message = """
-Adjust P towards """ + crit_target + "."
+Adjust P towards """ + str(Cue) 
 	# t0 = time.time()
 	# while time.time()-t0 < 2:
 	# 	pass
@@ -197,18 +212,16 @@ Adjust P towards """ + crit_target + "."
 	display_frame.after(5000, tone_fx, F3)
 	display_frame.after(6000, forget, [StimInfo])
 	display_frame.after(7000, text_fx, StimInfo, """
-"""+str(Cue),False,None)
-	display_frame.after(8000, text_fx, StimInfo, adjustP_message,False,None)
-	display_frame.after(8000, make_btns_active)
+Adjust P towards T"""+ str(Cue) + ".",False,None)
+	display_frame.after(7000, make_btns_active)
 
 ## Global variables
 ts_init = time.time()
 # duration_break = 1*60 # x minutes times 60 seconds
 P_is_on = False
 btns_active = False
-
-targets = ["T1","T2"]; random.shuffle(targets)
-crit_target = targets[0]
+practice = True
+i = 0
 
 menu = tk.Tk()
 menu.title("Menu")
@@ -222,6 +235,12 @@ display.geometry('650x300+400+5')
 display_frame = tk.Frame(display, height=300, width=500)
 display_frame.pack()
 
+StimInfo = Label(display_frame,font=("Arial",20))
+StimInfo.pack()
+StimInfo["text"] = """
+Start by reading the instruction.
+"""
+
 controlr = tk.Toplevel()
 controlr.title("Controller")
 controlr.geometry('650x300+400+400')
@@ -231,7 +250,7 @@ controlr_frame.pack()
 button_practice = tk.Button(menu, text = "Practice", bg="White", fg="Black", 
 	font=("Arial",15), padx=7, pady=10, height=1, width=8, command=lambda: trial_fx(True))
 button_test = tk.Button(menu, text = "Test", bg="White", fg="Black", 
-	font=("Arial",15), padx=7, pady=10, height=1, width=8)
+	font=("Arial",15), padx=7, pady=10, height=1, width=8, command=lambda: [switchToTest(), trial_fx(True)])
 button_instr = tk.Button(menu, text = "Instruction", bg="White", fg="Black", 
 	font=("Arial",15), padx=7, pady=10, height=1, width=8,
 	command=lambda: newWindow("Instruction",'900x300+5+500'))
@@ -242,7 +261,8 @@ button_test.place(relx=.3, rely=.6)
 slider = Scale(controlr_frame, from_=383, to=50, length=200, showvalue=0, 
 	command=change_hz)
 #slider.set((383-50)/2+50)
-slider.set(np.random.randint(1,300))
+cur_hz = np.random.randint(1,300)
+slider.set(cur_hz)
 slider.place(relx=.5,rely=.2)
 repeat_btn = Button(controlr_frame, text = "Repeat", command = repeat_trial,
 	bg="White", fg="Black", font=("Arial",15), padx=7, pady=10, height=1, width=8)
@@ -258,7 +278,6 @@ play_btn.place(relx=0.1,rely=.3)
 
 columns = ["track","i","condition","PTS","Position","F1","F2","F3","Cue","adjustment"]
 df = pd.DataFrame(columns=columns)
-stim_list = cx.conditions_practice
 cur_stim = None
 
 pcodefile = open("p_code.txt","r")

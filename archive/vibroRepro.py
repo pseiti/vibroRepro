@@ -81,10 +81,9 @@ def repeat_trial():
 		LoG["F2"] = F2
 		LoG["F3"] = F3
 		LoG["Cue"] = Cue
-		present_trialStims(F1,F2,F3,Cue)
 		display_frame.after(1,turn_off_P)
 		display_frame.after(500,forget([StimInfo]))
-		display_frame.after(1000,present_trialStims)
+		display_frame.after(1000,present_trialStims,F1,F2,F3,Cue)
 
 # rating_keys = ["1","2","3","4","5","6"]
 # def get_keypress_rating():

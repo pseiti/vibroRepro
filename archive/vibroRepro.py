@@ -154,6 +154,9 @@ def play_probe():
 		cur_amp = quadFx(cur_hz)
 		playVib(cur_amp,1,cur_hz)
 
+def slider_release(val):
+    slider.bind("<ButtonRelease-1>", change_hz)
+ 
 def trial_fx(firstCall):
 	LoG = globals()
 	ts_cur = time.time()
@@ -214,14 +217,25 @@ Adjust P towards """ + str(Cue)
 Adjust P towards T"""+ str(Cue) + ".",False,None)
 	display_frame.after(7000, make_btns_active)
 
-## Global variables
+## Global objects
 ts_init = time.time()
 # duration_break = 1*60 # x minutes times 60 seconds
 P_is_on = False
 btns_active = False
 practice = True
 i = 0
+columns = ["track","i","condition","PTS","Position","F1","F2","F3","Cue","adjustment"]
+df = pd.DataFrame(columns=columns)
+cur_stim = None
 
+pcodefile = open("p_code.txt","r")
+pcode = pcodefile.read()
+pcodefile.close()
+
+curwd = os.getcwd() + "/"
+logfile_name = "{}vibroRepro_{}.csv".format(curwd, pcode)
+
+## GUI 
 menu = tk.Tk()
 menu.title("Menu")
 menu.geometry('200x300+1200+355')
@@ -257,10 +271,11 @@ button_instr.place(relx=.3, rely=.2)
 button_practice.place(relx=.3, rely=.4)
 button_test.place(relx=.3, rely=.6)
 
-slider = Scale(controlr_frame, from_=383, to=50, length=200, showvalue=0, 
-	command=change_hz)
+slider = Scale(controlr_frame, from_= np.log(211), to=np.log(51),
+	resolution=(np.log(211)-np.log(51))/(211-51), 
+	length=400, showvalue=0, command=slider_release)
 #slider.set((383-50)/2+50)
-cur_hz = np.random.randint(1,300)
+cur_hz = np.log(np.random.randint(51,211))
 slider.set(cur_hz)
 slider.place(relx=.5,rely=.2)
 repeat_btn = Button(controlr_frame, text = "Repeat", command = repeat_trial,
@@ -274,16 +289,5 @@ play_btn = Button(controlr_frame, text = "Play P", command = play_probe,
 play_btn.place(relx=0.1,rely=.3)
 # rating_image = ImageTk.PhotoImage(Image.open("rating_scale.png"))
 # rating_label = Label(display_frame, image=rating_image)
-
-columns = ["track","i","condition","PTS","Position","F1","F2","F3","Cue","adjustment"]
-df = pd.DataFrame(columns=columns)
-cur_stim = None
-
-pcodefile = open("p_code.txt","r")
-pcode = pcodefile.read()
-pcodefile.close()
-
-curwd = os.getcwd() + "/"
-logfile_name = "{}vibroRepro_{}.csv".format(curwd, pcode)
 
 menu.mainloop()

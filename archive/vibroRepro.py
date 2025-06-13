@@ -105,7 +105,7 @@ def submit_response():
 	if LoG["btns_active"]:
 		slider.set(np.random.randint(1,300))
 		# LoG[""]
-		LoG["i"]=1
+		LoG["i"]=0
 		LoG["track"]+=1
 		LoG["btns_active"] = False
 		LoG["P_is_on"] = False
@@ -238,7 +238,7 @@ logfile_name = "{}vibroRepro_{}.csv".format(curwd, pcode)
 ## GUI 
 menu = tk.Tk()
 menu.title("Menu")
-menu.geometry('200x300+1200+355')
+menu.geometry('200x300+150+355')
 menu_frame = tk.Frame(menu, height=300, width=200)
 menu_frame.pack()
 
@@ -256,8 +256,8 @@ Start by reading the instruction.
 
 controlr = tk.Toplevel()
 controlr.title("Controller")
-controlr.geometry('650x500+400+400')
-controlr_frame = tk.Frame(controlr, height=300, width=500)
+controlr.geometry('600x500+400+400')
+controlr_frame = tk.Frame(controlr, height=800, width=500)
 controlr_frame.pack()
 
 button_practice = tk.Button(menu, text = "Practice", bg="White", fg="Black", 
@@ -267,15 +267,15 @@ button_test = tk.Button(menu, text = "Test", bg="White", fg="Black",
 button_instr = tk.Button(menu, text = "Instruction", bg="White", fg="Black", 
 	font=("Arial",15), padx=7, pady=10, height=1, width=8,
 	command=lambda: newWindow("Instruction",'900x300+5+500'))
-button_instr.place(relx=.3, rely=.2)
-button_practice.place(relx=.3, rely=.4)
-button_test.place(relx=.3, rely=.6)
+button_instr.place(relx=.25, rely=.2)
+button_practice.place(relx=.25, rely=.4)
+button_test.place(relx=.25, rely=.6)
 
-slider = Scale(controlr_frame, from_= 220, to=40, resolution=5, 
-	length=400, showvalue=1, command=slider_release)
+slider = Scale(controlr_frame, from_= 220, to=40, resolution=1, 
+	length=300, showvalue=1, command=slider_release)
 cur_hz = np.random.randint(40,221)
 slider.set(cur_hz)
-slider.place(relx=.5,rely=.2)
+slider.place(relx=.4,rely=.2)
 repeat_btn = Button(controlr_frame, text = "Repeat", command = repeat_trial,
 	bg="White", fg="Black", font=("Arial",15), padx=7, pady=10, height=1, width=8)
 repeat_btn.place(relx=0.1,rely=.6)

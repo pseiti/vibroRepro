@@ -45,11 +45,11 @@ def playVib(vol,dur,Hz):
 
 	    p.terminate()
 
-def newWindow(title,geom):
+def newWindow(title,geom, h, w):
 	Window = tk.Toplevel()
 	Window.title(title)
 	Window.geometry(geom)
-	frame = tk.Frame(Window, height=300, width=600)
+	frame = tk.Frame(Window, height=h, width=w)
 	frame.pack()
 
 def text_fx(field_name,txt,configureState,state):

@@ -58,9 +58,6 @@ def text_fx(field_name,txt,configureState,state):
 	if configureState:
 		field_name.configure(state)
 
-# def clear_content(field_names):
-# 	for x in range(len(field_names)):
-# 		field_names[x].delete("1.0",END)
 def forget(objects):
 	for x in objects:
 		x.pack_forget()
@@ -104,7 +101,6 @@ def submit_response():
 	LoG = globals()
 	if LoG["btns_active"]:
 		slider.set(np.random.randint(1,300))
-		# LoG[""]
 		LoG["i"]=0
 		LoG["track"]+=1
 		LoG["btns_active"] = False
@@ -121,7 +117,6 @@ def change_hz(val):
 	LoG = globals()
 	df = LoG["df"]
 	cur_hz = slider.get()
-	# columns = ["track","i","condition","PTS","Position","F1","F2","F3","Cue","adjustments"]
 	if LoG["P_is_on"]:
 		LoG["i"] += 1
 		cur_stim = LoG["cur_stim"]
@@ -194,9 +189,6 @@ def present_trialStims(F1,F2,F3,Cue):
 	LoG = globals()
 	LoG["P_is_on"] = True
 	StimInfo = LoG["StimInfo"]
-	# StimInfo = Label(display_frame, font=("Arial bold",20))
-	# T1_hz = 138
-	# T2_hz = 170
 	adjustP_message = """
 
 

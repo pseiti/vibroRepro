@@ -256,7 +256,7 @@ Start by reading the instruction.
 
 controlr = tk.Toplevel()
 controlr.title("Controller")
-controlr.geometry('650x300+400+400')
+controlr.geometry('650x500+400+400')
 controlr_frame = tk.Frame(controlr, height=300, width=500)
 controlr_frame.pack()
 
@@ -271,11 +271,9 @@ button_instr.place(relx=.3, rely=.2)
 button_practice.place(relx=.3, rely=.4)
 button_test.place(relx=.3, rely=.6)
 
-slider = Scale(controlr_frame, from_= np.log(211), to=np.log(51),
-	resolution=(np.log(211)-np.log(51))/(211-51), 
-	length=400, showvalue=0, command=slider_release)
-#slider.set((383-50)/2+50)
-cur_hz = np.log(np.random.randint(51,211))
+slider = Scale(controlr_frame, from_= 220, to=40, resolution=5, 
+	length=400, showvalue=1, command=slider_release)
+cur_hz = np.random.randint(40,221)
 slider.set(cur_hz)
 slider.place(relx=.5,rely=.2)
 repeat_btn = Button(controlr_frame, text = "Repeat", command = repeat_trial,

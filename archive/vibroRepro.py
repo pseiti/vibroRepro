@@ -112,18 +112,32 @@ Prepare for next stimulus!""", False, None)
 		display_frame.after(2000, forget, [StimInfo])
 		display_frame.after(3000, trial_fx, False)
 
+def DistanceToTarget(Hz_subj,Hz_target):
+    Delta = Hz_subj - Hz_target
+    if Delta == 0:
+        Distance_in_percent = 0
+    else:
+        i_Hz_target = F.index(Hz_target)
+        Hz_nextTarget = F[(i_Hz_target+1)] if Delta > 0 else F[(i_Hz_target-1)]
+        Delta_max = abs(Hz_target-Hz_nextTarget)
+        Distance_in_percent = np.round((Delta*100)/Delta_max)
+    return Distance_in_percent
+
 def change_hz(val):
 	global cur_hz
 	LoG = globals()
 	df = LoG["df"]
 	cur_hz = slider.get()
+	target_hz = [LoG["F1"],LoG["F2"],LoG["F3"]][LoG["Cue"]-1]
+	dist_abs = cur_hz-target_hz
+	dist_pct = DistanceToTarget(cur_hz,target_hz)
 	if LoG["P_is_on"]:
 		LoG["i"] += 1
 		cur_stim = LoG["cur_stim"]
 		df.loc[len(df.index),["track","i","condition","PTS","Position",
-		"F1","F2","F3","Cue","adjustment"]] = [LoG["track"],LoG["i"],cur_stim.get("condition"),
+		"F1","F2","F3","Cue","adjustment","dist_abs","dist_pct"]] = [LoG["track"],LoG["i"],cur_stim.get("condition"),
 		cur_stim.get("Same_or_Diff"),cur_stim.get("seqPos"),
-		LoG["F1"],LoG["F2"],LoG["F3"],LoG["Cue"],cur_hz]
+		LoG["F1"],LoG["F2"],LoG["F3"],LoG["Cue"],cur_hz,dist_abs,dist_pct]
 		if btns_active:
 			tone_fx(cur_hz)
 		LoG["df"] = df
@@ -228,9 +242,10 @@ P_is_on = False
 btns_active = False
 practice = True
 i = 0
-columns = ["track","i","condition","PTS","Position","F1","F2","F3","Cue","adjustment"]
+columns = ["track","i","condition","PTS","Position","F1","F2","F3","Cue","adjustment","dist_abs","dist_pct"]
 df = pd.DataFrame(columns=columns)
 cur_stim = None
+F = [51,55,60,70,82,96,112,132,154,180,195,211]
 
 pcodefile = open("p_code.txt","r")
 pcode = pcodefile.read()

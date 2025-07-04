@@ -62,10 +62,6 @@ def forget(objects):
 	for x in objects:
 		x.pack_forget()
 
-def remember(objects):
-	for x in objects:
-		x.pack()
-
 def turn_off_P():
 	global P_is_on
 	P_is_on = False
@@ -199,7 +195,6 @@ def trial_fx(firstCall):
 Thank you for your participation. You have passed the test session too.""",False,None)
 
 def present_trialStims(F1,F2,F3,Cue):
-	# global P_is_on, StimInfo
 	LoG = globals()
 	LoG["P_is_on"] = True
 	StimInfo = LoG["StimInfo"]
@@ -247,6 +242,28 @@ df = pd.DataFrame(columns=columns)
 cur_stim = None
 F = [51,55,60,70,82,96,112,132,154,180,195,211]
 
+instrctn_0 = """In the following experiment you are presented with vibrotactile stimuli.
+The experiment will take about 60 minutes. Self-paced breaks between trials are allowed throughout the session. 
+The experiment consists of two practice sessions and one experimental session. 
+In short, the task of the experimental session is to use a continuous slider to adjust
+one vibration frequency to approxiamately match one of three previously presented vibration frequencies.
+Which of the three vibration frequencies you need to adjust is indicated by the numner 1, 2 or 3.
+In the first practice session you will practice the use of the slider.
+In the second practice session you will practice the experimental task. 
+
+Please wear the ear plugs and ear muffs during all sessions but
+of course you can remove them during the breaks."""
+
+
+"""SLIDER PRACTICE SESSION In the experimental task you will have to use a slider in order to match tactile vibration frequencies.
+Therefore, in the current practice session, you will practice the use of the slider first. For that purpose, please put the ear plugs and ear muffs on and the index finger of your
+non-dominant hand on the vibration device in the box. Again, please just rest your finger on it and don’t exert any pressure. In each trial, you will receive one single vibration impulse. 
+Your task is to move the slider (which represents a range of frequencies) up or down until the frequency you adjusted with it matches the frequency given at the beginning of each trial. 
+If you move the slider up the frequency becomes higher, if you move it down the frequency becomes lower. If you think you adjusted the slider correctly press the ‘Submit’ button.
+You then get feedback about how close you matched the frequency. The feedback is given as the distance of your adjustment to the target in percent. The goal is to reach below 40% distance.
+Please try to adjust the frequency as exact as possible. :-) If you're ready please press the space bar to start the practice session."""
+
+
 pcodefile = open("p_code.txt","r")
 pcode = pcodefile.read()
 pcodefile.close()
@@ -286,9 +303,7 @@ button_test = tk.Button(menu, text = "Test", bg="White", fg="Black",
 button_instr = tk.Button(menu, text = "Instruction", bg="White", fg="Black", 
 	font=("Arial",15), padx=7, pady=10, height=1, width=8,
 	command=lambda: text_fx(StimInfo,"""
-Vibrotactile Reproduction Task
-
-In every trial, three vibrotacile frequencies,
+Vibrotactile Reproduction Task In every trial, three vibrotacile frequencies,
 the so-called list items,
 are presented, 
 followed by a visual cue:
@@ -297,7 +312,8 @@ The cue indicates which of the three
 list items must be reproduced,
 using the slider of the 
 controller window below. 
-""",False,None))
+"""))
+
 button_instr.place(relx=.25, rely=.2)
 button_practice.place(relx=.25, rely=.4)
 button_test.place(relx=.25, rely=.6)

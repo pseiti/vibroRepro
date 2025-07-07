@@ -242,7 +242,8 @@ P_is_on = False
 btns_active = False
 practice = True
 i = 0
-columns = ["track","i","condition","PTS","Position","F1","F2","F3","Cue","adjustment","dist_abs","dist_pct"]
+columns = ["track","i","condition","PTS","Position","F1","F2","F3",
+"Cue","adjustment","dist_abs","dist_pct"]
 df = pd.DataFrame(columns=columns)
 cur_stim = None
 F = [51,55,60,70,82,96,112,132,154,180,195,211]
@@ -279,13 +280,7 @@ controlr.geometry('600x500+400+500')
 controlr_frame = tk.Frame(controlr, height=800, width=500)
 controlr_frame.pack()
 
-button_practice = tk.Button(menu, text = "Practice", bg="White", fg="Black", 
-	font=("Arial",15), padx=7, pady=10, height=1, width=8, command=lambda: trial_fx(True))
-button_test = tk.Button(menu, text = "Test", bg="White", fg="Black", 
-	font=("Arial",15), padx=7, pady=10, height=1, width=8, command=lambda: [switchToTest(), trial_fx(True)])
-button_instr = tk.Button(menu, text = "Instruction", bg="White", fg="Black", 
-	font=("Arial",15), padx=7, pady=10, height=1, width=8,
-	command=lambda: text_fx(StimInfo,"""
+"""
 Vibrotactile Reproduction Task
 
 In every trial, three vibrotacile frequencies,
@@ -297,7 +292,96 @@ The cue indicates which of the three
 list items must be reproduced,
 using the slider of the 
 controller window below. 
-""",False,None))
+"""
+
+instr = """In the following experiment you are presented
+with tactile stimuli. 
+The experiment will take about … minutes.
+Several breaks are included. 
+The experiment consists of 
+two practice sessions 
+and one experimental session.
+In short, the task of the 
+experimental session is to 
+adjust one vibration frequency 
+to match another vibration 
+frequency by using a slider. 
+In the first practice session,
+you will practice the use of 
+a slider,
+and in the second 
+practice session, you will 
+practice the experimental task. 
+A detailed explanation of 
+the task occurs before 
+each session. 
+Please wear the ear plugs and
+ear muffs during all sessions 
+but you can remove 
+them during the breaks. 
+"""
+
+instruction_page = """SLIDER PRACTICE SESSION
+In the experimental task you 
+you use a slider 
+to adjust tactile
+vibration frequencies. 
+First, practice
+using the slider. 
+Please put on the 
+ear plugs 
+and ear muffs and 
+place the
+index finger of 
+your non-dominant 
+hand on the 
+vibration device 
+in the box. 
+Please, place your finger 
+on it 
+without exerting 
+any pressure. 
+
+In each trial, 
+you feel one
+single vibrotactile
+stimulation at your
+fingertip.
+After a short 1s pause
+, your task is to
+manipulate a slider.
+To this end, you touch the
+screen and moving the
+slider's knob
+up to increase Hz
+or down to decrease Hz, 
+until the adjusted 
+frequency (Hz) 
+matches the previously 
+perceived. 
+If you move the slider 
+knob up, the frequency 
+becomes higher, 
+if you move it down,
+the frequency becomes 
+lower. If you think you 
+adjusted the slider correctly press the ‘Submit’ button. 
+You then get feedback about how close you matched the frequxency. 
+The feedback is given as the distance of your adjustment to the target in percent. 
+The goal is to reach below 40% distance.
+Please try to adjust the frequency as exact as possible."""
+
+# scrollbar = Scrollbar(display)
+# scrollbar.pack(side=RIGHT,fill=Y)
+# scrollbar.config(command=display_frame.yview)
+
+button_practice = tk.Button(menu, text = "Practice", bg="White", fg="Black", 
+	font=("Arial",15), padx=7, pady=10, height=1, width=8, command=lambda: trial_fx(True))
+button_test = tk.Button(menu, text = "Test", bg="White", fg="Black", 
+	font=("Arial",15), padx=7, pady=10, height=1, width=8, command=lambda: [switchToTest(), trial_fx(True)])
+button_instr = tk.Button(menu, text = "Instruction", bg="White", fg="Black", 
+	font=("Arial",15), padx=7, pady=10, height=1, width=8,
+	command=lambda: text_fx(StimInfo,instr,False,None))
 button_instr.place(relx=.25, rely=.2)
 button_practice.place(relx=.25, rely=.4)
 button_test.place(relx=.25, rely=.6)

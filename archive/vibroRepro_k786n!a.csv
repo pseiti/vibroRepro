@@ -1,2 +1,8 @@
 ,track,i,condition,PTS,Position,F1,F2,F3,Cue,adjustment,dist_abs,dist_pct
+<<<<<<< HEAD
 0,1,1,ST1_1,Same,1,82,132,82,1,131,49,350.0
+=======
+0,1,1,ST1_1,Same,1,82,132,82,1,190,108,771.0
+1,1,2,ST1_1,Same,1,82,132,82,1,64,-18,-150.0
+2,1,3,ST1_1,Same,1,82,132,82,1,87,5,36.0
+>>>>>>> 934a7b4a4038bd51771fff8ce576e6f26677a0cd
